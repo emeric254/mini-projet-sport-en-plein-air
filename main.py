@@ -12,7 +12,7 @@ from Handlers.LoginHandler import LoginHandler
 from Handlers.RegisterHandler import RegisterHandler
 from Handlers.LogoutHandler import LogoutHandler
 from Handlers.ChatSocketHandler import ChatSocketHandler
-from tornado import escape, web, websocket
+from tornado import web
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
@@ -34,11 +34,11 @@ class Application(web.Application):
             (r'/chatsocket/(.*)$', ChatSocketHandler, dict(redis_client=redis_client)),
         ]
         settings = {
-            'cookie_secret': ''.join([random.choice(string.printable) for _ in range(64)]),
+            'cookie_secret': ''.join([random.choice(string.printable) for _ in range(128)]),  # generate a secret
             'template_path': './templates',
             'static_path': './static',
             'login_url': '/login',
-            'xsrf_cookies': True,  # secret cookie
+            'xsrf_cookies': True,  # secure cookies
         }
         super(Application, self).__init__(handlers, **settings)
 
@@ -56,7 +56,6 @@ class MainHandler(BaseHandler):
 def main():
     """main
     """
-    tchat_port = '8888'
     redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
     redis_client.ping()
     app = Application(redis_client=redis_client)
