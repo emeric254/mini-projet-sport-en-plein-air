@@ -16,7 +16,7 @@ class ChatSocketHandler(websocket.WebSocketHandler, BaseHandler):
     def initialize(self, redis_client: redis.Redis):
         """initialize
 
-        :param redis_client:
+        :param redis_client: redis connection
         """
         self.redis_client = redis_client
         self.subscrib = redis_client.pubsub()

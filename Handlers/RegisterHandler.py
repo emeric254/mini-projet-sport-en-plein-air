@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import redis
 import logging
 from tornado import escape
@@ -15,33 +16,34 @@ class RegisterHandler(BaseHandler):
         """initialize
 
         :param redis_client:
-        :return:
         """
         self.redis_client = redis_client
 
     def get(self):
-        """Get login form
+        """Get register form
         """
-        incorrect = self.get_secure_cookie('incorrect') or 0
-        if int(incorrect) > 5:
-            logger.warning('an user have been blocked : ' + self.current_user)
-            self.write('<center>blocked</center>')
+        if self.current_user:
+            self.redirect('/')
             return
-        self.render('login.html', user=self.current_user)
+        self.render('register.html')
 
     def post(self):
         """Post register form and try to sign up with these credentials
         """
+        if self.current_user:
+            self.redirect('/')
+            return
         getusername = escape.xhtml_escape(self.get_argument('username'))
         getpassword = escape.xhtml_escape(self.get_argument('password'))
-        if not self.redis_client.exists('users-' + getusername):
-            logger.debug('register new user : ' + getusername)
-            self.redis_client.set('users-' + getusername, getpassword)
-            self.set_secure_cookie("user", getusername, expires_days=1)
-            self.set_secure_cookie("incorrect", "0")
-            self.redirect('/')
+        getobjectname = escape.xhtml_escape(self.get_argument('object-name'))
+        if not self.redis_client.exists('users-' + getusername) and \
+            len(getusername) > 4 and len(getpassword) > 7:
+                logger.debug('register new user : ' + getusername)
+                self.redis_client.set('users-' + getusername, getpassword)
+                self.redis_client.set('objects-' + getusername, json.dumps({'name': getobjectname}))
+                self.set_secure_cookie('user', getusername, expires_days=1)
+                self.set_secure_cookie('incorrect', '0')
+                self.redirect('/')
         else:
-            logger.info('invalid credentials : "' + getusername + '" "' + getpassword + '"')
-            incorrect = self.get_secure_cookie('incorrect') or 0
-            self.set_secure_cookie('incorrect', str(int(incorrect) + 1), expires_days=1)
-            self.render('login.html', user=self.current_user)
+            logger.info('invalid register form received : "' + getusername + '" "' + getpassword + '"')
+            self.render('register.html', error='You can\'t create an account with these informations')
