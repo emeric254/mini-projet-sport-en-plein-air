@@ -36,8 +36,9 @@
                         <span ng-bind="time.hour"></span>
                         h
                         <i class="wi wi-rain" ng-if="time.weather=='Rain'"></i>
-                        <i class="wi wi-day-sunny" ng-if="time.weather=='Rain'"></i>
-                        <i class="wi wi-rain" ng-if="time.weather=='Rain'"></i>
+                        <i class="wi wi-day-sunny" ng-if="time.weather=='Clear'"></i>
+                        <i class="wi wi-cloud" ng-if="time.weather=='Clouds'"></i>
+                        <i class="wi wi-lightning" ng-if="time.weather=='Lightning'"></i>
                     </span>
                     <md-grid-tile-footer>
                         <span ng-bind="time.users.length - ((time.users.indexOf('{{ current_user }}')!=-1)?1:0)"></span>
@@ -66,7 +67,7 @@
                             'bbb',
                             'emeric254'
                         ]:['aaa'],
-                        'weather': 'Rain'
+                        'weather': (i%3)?'Rain':'Clear'
                     });
                 }
                 //
