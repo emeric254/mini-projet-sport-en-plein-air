@@ -37,6 +37,9 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
         self.channel = path_request
         self.subscrib.subscribe(**{self.channel: self.send_updates})
         self.thread = self.subscrib.run_in_thread(sleep_time=0.001)
+        object_data = self.redis_client.get('objects-' + self.get_current_user().decode())
+        if object_data:
+            self.write_message(object_data)  # send initial state
 
     def on_close(self):
         """on_close on websocket close
