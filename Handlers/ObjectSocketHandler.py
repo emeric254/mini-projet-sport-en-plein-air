@@ -10,7 +10,7 @@ from Handlers.BaseHandler import BaseHandler
 logger = logging.getLogger(__name__)
 
 
-class ChatSocketHandler(websocket.WebSocketHandler, BaseHandler):
+class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
     """ChatSocketHandler
     """
     def initialize(self, redis_client: redis.Redis):

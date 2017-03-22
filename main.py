@@ -12,6 +12,7 @@ from Handlers.LoginHandler import LoginHandler
 from Handlers.RegisterHandler import RegisterHandler
 from Handlers.LogoutHandler import LogoutHandler
 from Handlers.ChatSocketHandler import ChatSocketHandler
+from Handlers.ObjectSocketHandler import ObjectSocketHandler
 from tornado import web
 
 abspath = os.path.abspath(__file__)
@@ -31,6 +32,7 @@ class Application(web.Application):
             (r'/login', LoginHandler, dict(redis_client=redis_client)),
             (r'/register', RegisterHandler, dict(redis_client=redis_client)),
             (r'/logout', LogoutHandler),
+            (r'/objectsocket/(.*)$', ObjectSocketHandler, dict(redis_client=redis_client)),
             (r'/chatsocket/(.*)$', ChatSocketHandler, dict(redis_client=redis_client)),
         ]
         settings = {
@@ -50,7 +52,7 @@ class MainHandler(BaseHandler):
     def get(self):
         """get main page
         """
-        self.render('index.html', messages=[])
+        self.render('index.html', messages=[], current_user=self.get_current_user())
 
 
 def main():
