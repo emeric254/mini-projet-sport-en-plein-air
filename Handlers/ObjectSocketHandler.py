@@ -28,12 +28,12 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
         return {}  # Non-None enables compression with default options.
 
     @web.authenticated
-    def open(self, path_request):
+    def open(self):
         """open
 
         :param path_request: uri requested for the websocket
         """
-        self.channel = 'messages' + path_request
+        self.channel = 'objects-' + self.get_current_user()
         self.subscrib.subscribe(**{self.channel: self.send_updates})
         self.thread = self.subscrib.run_in_thread(sleep_time=0.001)
 
@@ -43,27 +43,21 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
         self.subscrib.unsubscribe(self.channel)
         self.thread.stop()
 
-    def send_updates(self, chat):
+    def send_updates(self, message):
         """send_updates
 
-        :param chat: oblect recieved from a publication (redis)
+        :param chat: object data received from a publication (redis)
         """
         try:
-            self.write_message(chat['data'])
+            self.write_message(message['data'])  # redis has the true message object under the 'data' key
         except websocket.WebSocketClosedError:
             logger.error("Error sending message", exc_info=True)
 
     def on_message(self, message):
         """on_message
 
-        :param message: message recieved from the user
+        :param message: message received from the user object
         """
-        logger.info('got message "%r" from %s', message, self.current_user.decode())
-        parsed = escape.json_decode(message)
-        chat = {
-            'id': str(uuid.uuid4()),
-            'author': self.current_user.decode(),
-            'body': parsed['body'],
-        }
-        chat['html'] = escape.to_basestring(self.render_string('message.html', message=chat))
-        self.redis_client.publish(self.channel, json.dumps(chat))
+        logger.info('got message "%r" from %s\'s object', message, self.current_user.decode())
+        self.redis_client.publish(self.channel, message)  # publish it on the queue
+        self.redis_client.set('objects-' + self.get_current_user(), message)  # write it in the database
