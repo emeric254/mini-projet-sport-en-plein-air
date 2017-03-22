@@ -14,7 +14,7 @@
                 Welcome {{ current_user }} !
             </h1>
             <h2 ng-if="connected_object">
-                Your <span ng-bind="connected_object.name"></span> is located in <span ng-bind="connected_object.location"></span>.
+                Your <span ng-bind="connected_object.name"></span> is located in <span ng-bind="connected_object.position"></span>.
             </h2>
             <div layout="row" layout-align="space-between center">
                 <span>You want to : </span>
@@ -90,10 +90,10 @@
 
                 var ws = new WebSocket("ws://" + location.host + "/objectsocket/objects-" + '{{ current_user }}');
                 ws.onopen = function(){
-                    console.log("Socket has been opened!");
+                    console.log("Socket «objects-{{ current_user }}» has been opened!");
                 };
                 ws.onmessage = function(message) {
-                    listener(JSON.parse(message.data));
+                    $scope.connected_object = JSON.parse(message.data);
                 };
             });
         </script>

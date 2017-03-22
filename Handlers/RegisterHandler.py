@@ -40,7 +40,8 @@ class RegisterHandler(BaseHandler):
                         len(getusername) > 3 and len(getpassword) > 5 and len(getobjectname) > 3:
                 logger.debug('register new user : ' + getusername)
                 self.redis_client.set('users-' + getusername, getpassword)
-                self.redis_client.set('objects-' + getusername, json.dumps({'name': getobjectname}))
+                self.redis_client.set('objects-' + getusername, json.dumps({'name': getobjectname,
+                                                                            'location': 'Toulouse'}))
                 with open('connected_object_simulator/' + getusername, mode='w') as file:
                     file.write('\n')  # create a file to simulate a new connected object
                 self.set_secure_cookie('user', getusername, expires_days=1)
