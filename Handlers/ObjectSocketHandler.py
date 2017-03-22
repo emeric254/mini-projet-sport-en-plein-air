@@ -28,12 +28,13 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
         return {}  # Non-None enables compression with default options.
 
     @web.authenticated
-    def open(self):
+    def open(self, path_request):
         """open
 
         :param path_request: uri requested for the websocket
         """
-        self.channel = 'objects-' + self.get_current_user()
+        logger.info('open ws for "' + path_request + '"')
+        self.channel = path_request
         self.subscrib.subscribe(**{self.channel: self.send_updates})
         self.thread = self.subscrib.run_in_thread(sleep_time=0.001)
 

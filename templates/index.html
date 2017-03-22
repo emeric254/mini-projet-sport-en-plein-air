@@ -87,6 +87,14 @@
                         $scope.day[time_hour].users.push('{{ current_user }}');
                     //
                 };
+
+                var ws = new WebSocket("ws://" + location.host + "/objectsocket/objects-" + '{{ current_user }}');
+                ws.onopen = function(){
+                    console.log("Socket has been opened!");
+                };
+                ws.onmessage = function(message) {
+                    listener(JSON.parse(message.data));
+                };
             });
         </script>
     </body>
