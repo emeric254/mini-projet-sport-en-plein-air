@@ -37,7 +37,7 @@ class RegisterHandler(BaseHandler):
         getpassword = escape.xhtml_escape(self.get_argument('password'))
         getobjectname = escape.xhtml_escape(self.get_argument('object-name'))
         if not self.redis_client.exists('users-' + getusername) and \
-                        len(getusername) > 3 and len(getpassword) > 5 and len(getobjectname) > 3:
+           len(getusername) > 3 and len(getpassword) > 5 and len(getobjectname) > 3:
                 logger.debug('register new user : ' + getusername)
                 self.redis_client.set('users-' + getusername, getpassword)
                 self.redis_client.set('objects-' + getusername, json.dumps({'name': getobjectname,

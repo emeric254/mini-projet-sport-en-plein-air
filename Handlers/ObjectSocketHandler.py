@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import uuid
-import json
 import redis
 import logging
-from tornado import escape, web, websocket
+from tornado import web, websocket
 from Handlers.BaseHandler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
 
 class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
-    """ChatSocketHandler
+    """ObjectSocketHandler
     """
     def initialize(self, redis_client: redis.Redis):
         """initialize
@@ -37,7 +35,7 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
         self.channel = path_request
         self.subscrib.subscribe(**{self.channel: self.send_updates})
         self.thread = self.subscrib.run_in_thread(sleep_time=0.001)
-        object_data = self.redis_client.get('objects-' + self.get_current_user().decode())
+        object_data = self.redis_client.get(path_request)
         if object_data:
             self.write_message(object_data)  # send initial state
 
@@ -50,7 +48,7 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
     def send_updates(self, message):
         """send_updates
 
-        :param chat: object data received from a publication (redis)
+        :param message: object data received from a publication (redis)
         """
         try:
             self.write_message(message['data'])  # redis has the true message object under the 'data' key

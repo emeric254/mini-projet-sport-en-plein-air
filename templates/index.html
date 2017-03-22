@@ -14,13 +14,13 @@
                 Welcome {{ current_user }} !
             </h1>
             <h2 ng-if="connected_object">
-                Your <span ng-bind="connected_object.name"></span> is located in <span ng-bind="connected_object.position"></span>.
+                Your connected object (<span ng-bind="connected_object.name"></span>) is located in <span ng-bind="connected_object.position"></span>.
             </h2>
             <div layout="row" layout-align="space-between center">
                 <span>You want to : </span>
                 <md-input-container flex>
                     <label>Select a sport</label>
-                    <md-select ng-model="select_sport">
+                    <md-select ng-model="choosen_sport" ng-change="choose_sport()">
                         <md-option ng-repeat="sport in sports" ng-value="sport">
                             <span ng-bind="sport"></span>
                         </md-option>
@@ -29,7 +29,7 @@
             </div>
         </div>
         <md-progress-linear md-mode="indeterminate" ng-show="!day" ng-if="select_sport"></md-progress-linear>
-        <div layout-padding ng-if="select_sport">
+        <div layout-padding ng-if="day">
             <md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
                 <md-grid-tile class="gray" md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1" ng-repeat="time in day" ng-style="{'background': (time.users.indexOf('{{ current_user }}') != -1)?'green':'gray'}" ng-click="toggle_time(time.hour)">
                     <span class="md-headline">
@@ -55,45 +55,35 @@
         <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
         <script type="text/javascript">
             app = angular.module('myApp', ['ngMaterial']);
-            app.controller('mainControl', function($scope, $window) {
-                //
-                $scope.day = [];
-                //
-                for (var i = 0; i < 24; i++) {
-                    $scope.day.push({
-                        'hour': (10 + i)%24,
-                        'users': (i%3)?[
-                            'aaa',
-                            'bbb',
-                            'emeric254'
-                        ]:['aaa'],
-                        'weather': (i%3)?'Rain':'Clear'
-                    });
-                }
-                //
-                $scope.sports = [
-                    'judo',
-                    'course a pied',
-                    'sieste'
-                ];
+            app.controller('mainControl', function($scope, $window, $http) {
+                // load sports list
+                $http.get('/sports').then(function successCallback(response) {
+                    $scope.sports = response['data'];
+                }, function errorCallback(response) {
+                    console.log(response);
+                });
+                // connected object ws to receive its updates
+                var ws_object = new WebSocket("ws://" + location.host + "/objectsocket/objects-" + '{{ current_user }}');
+                ws_object.onopen = function() {
+                    console.log("Socket «objects-{{ current_user }}» has been opened!");
+                };
+                ws_object.onmessage = function(message) {
+                    $scope.connected_object = JSON.parse(message.data);
+                };
+                // sport choosen, open ws for the planning
+                $scope.choose_sport = function() {
+                    // choosen sport ws to receive planning updates
+                    $scope.ws_day = new WebSocket("ws://" + location.host + "/planningsocket/sports-" + $scope.choosen_sport + "-" + $scope.connected_object.position);
+                    $scope.ws_day.onopen = function() {
+                        console.log("Socket «sports-" + $scope.choosen_sport + "-" + $scope.connected_object.position + "» has been opened!");
+                    };
+                    $scope.ws_day.onmessage = function(message) {
+                        $scope.day = JSON.parse(message.data);
+                    };
+                };
                 //
                 $scope.toggle_time = function(time_hour) {
                     // mock
-                    time_hour = (time_hour<10)?time_hour+24-10:time_hour-10;
-                    console.log($scope.day[time_hour]);
-                    if ($scope.day[time_hour].users.indexOf('{{ current_user }}') != -1)
-                        $scope.day[time_hour].users.splice($scope.day[time_hour].users.indexOf('{{ current_user }}'), 1);
-                    else
-                        $scope.day[time_hour].users.push('{{ current_user }}');
-                    //
-                };
-
-                var ws = new WebSocket("ws://" + location.host + "/objectsocket/objects-" + '{{ current_user }}');
-                ws.onopen = function(){
-                    console.log("Socket «objects-{{ current_user }}» has been opened!");
-                };
-                ws.onmessage = function(message) {
-                    $scope.connected_object = JSON.parse(message.data);
                 };
             });
         </script>

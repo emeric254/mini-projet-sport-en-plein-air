@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import uuid
-import json
 import redis
 import logging
-from tornado import escape, web, websocket
+from tornado import web
 from Handlers.BaseHandler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -19,7 +17,6 @@ class SportsHandler(BaseHandler):
         :param redis_client: redis connection
         """
         self.redis_client = redis_client
-
 
     @web.authenticated
     def get(self):

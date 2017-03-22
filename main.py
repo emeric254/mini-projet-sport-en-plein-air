@@ -14,6 +14,7 @@ from Handlers.RegisterHandler import RegisterHandler
 from Handlers.LogoutHandler import LogoutHandler
 from Handlers.ChatSocketHandler import ChatSocketHandler
 from Handlers.ObjectSocketHandler import ObjectSocketHandler
+from Handlers.PlanningSocketHandler import PlanningSocketHandler
 from tornado import web
 
 abspath = os.path.abspath(__file__)
@@ -35,6 +36,7 @@ class Application(web.Application):
             (r'/register', RegisterHandler, dict(redis_client=redis_client)),
             (r'/logout', LogoutHandler),
             (r'/objectsocket/(.*)$', ObjectSocketHandler, dict(redis_client=redis_client)),
+            (r'/planningsocket/(.*)$', PlanningSocketHandler, dict(redis_client=redis_client)),
             (r'/chatsocket/(.*)$', ChatSocketHandler, dict(redis_client=redis_client)),
         ]
         settings = {
