@@ -22,11 +22,6 @@ class RegisterHandler(BaseHandler):
     def get(self):
         """Get login form
         """
-        incorrect = self.get_secure_cookie('incorrect') or 0
-        if int(incorrect) > 5:
-            logger.warning('an user have been blocked : ' + self.current_user)
-            self.write('<center>blocked</center>')
-            return
         self.render('login.html', user=self.current_user)
 
     def post(self):
@@ -38,10 +33,7 @@ class RegisterHandler(BaseHandler):
             logger.debug('register new user : ' + getusername)
             self.redis_client.set('users-' + getusername, getpassword)
             self.set_secure_cookie("user", getusername, expires_days=1)
-            self.set_secure_cookie("incorrect", "0")
             self.redirect('/')
         else:
             logger.info('invalid credentials : "' + getusername + '" "' + getpassword + '"')
-            incorrect = self.get_secure_cookie('incorrect') or 0
-            self.set_secure_cookie('incorrect', str(int(incorrect) + 1), expires_days=1)
             self.render('login.html', user=self.current_user)
