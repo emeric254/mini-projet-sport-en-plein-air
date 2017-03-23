@@ -12,15 +12,38 @@ logger = logging.getLogger(__name__)
 
 def verif_planning(planning):
     timestamp = datetime.datetime.now().timestamp()
+    hour = datetime.datetime.now().hour
+    if not planning or not isinstance(planning, list):
+        planning = [{
+            'hour': datetime.datetime.now().hour - 1,
+            'timestamp': timestamp - 3600,
+            'users': []
+        }]
     last_timestamp = planning[-1]['timestamp']
-    for i, time in planning:
-        if timestamp > time['timestamp'] + i * 3600:
-            planning.remove(i)
+    for time in planning:
+        if timestamp > time['timestamp'] + planning.index(time) * 3600:
+            planning.remove(time)
             planning.append({
                 'hour': datetime.datetime.fromtimestamp(last_timestamp).hour + 1,
                 'timestamp': last_timestamp + 3600,
                 'users': [],
             })
+        last_timestamp = planning[-1]['timestamp']
+    while len(planning) < 24:
+        planning.append({
+            'hour': datetime.datetime.fromtimestamp(last_timestamp).hour + 1,
+            'timestamp': last_timestamp + 3600,
+            'users': [],
+        })
+        last_timestamp = planning[-1]['timestamp']
+    while datetime.datetime.fromtimestamp(planning[0]['timestamp']).hour < hour:
+        planning.pop(0)
+        planning.append({
+            'hour': datetime.datetime.fromtimestamp(last_timestamp).hour + 1,
+            'timestamp': last_timestamp + 3600,
+            'users': [],
+        })
+        last_timestamp = planning[-1]['timestamp']
     return planning
 
 
@@ -87,9 +110,13 @@ class PlanningSocketHandler(websocket.WebSocketHandler, BaseHandler):
 
         :param message: message received from the user object
         """
-        logger.info('got message "%r" for planning', message, self.channel)
+        logger.info('got message "' + message + '" for planning ' + self.channel)
         if message == 'refresh':
             message = verif_planning(self.redis_client.get(self.channel))
+        else:
+            data = json.loads(message)
+            message = verif_planning(data)
+        message = json.dumps(message)
         # add or remove current user to a time in the planning
         self.redis_client.publish(self.channel, message)  # publish it on the queue
         self.redis_client.set(self.channel, message)  # write it in the database

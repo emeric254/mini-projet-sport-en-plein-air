@@ -31,7 +31,7 @@
         <md-progress-linear md-mode="indeterminate" ng-show="!day" ng-if="select_sport"></md-progress-linear>
         <div layout-padding ng-if="day">
             <md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-                <md-grid-tile class="gray" md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1" ng-repeat="time in day" ng-style="{'background': (time.users.indexOf('{{ current_user }}') != -1)?'green':'gray'}" ng-click="toggle_time(time.hour)">
+                <md-grid-tile class="gray" md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1" ng-repeat="time in day track by $index" ng-style="{'background': (time.users.indexOf('{{ current_user }}') != -1)?'green':'gray'}" ng-click="toggle_time($index)">
                     <span class="md-headline">
                         <span ng-bind="time.hour"></span>
                         h
@@ -41,8 +41,10 @@
                         <i class="wi wi-lightning" ng-if="time.weather=='Lightning'"></i>
                     </span>
                     <md-grid-tile-footer>
-                        <span ng-bind="time.users.length - ((time.users.indexOf('{{ current_user }}')!=-1)?1:0)"></span>
-                        user(s)
+                        <h3>
+                            <span ng-bind="time.users.length - ((time.users.indexOf('{{ current_user }}')!=-1)?1:0)"></span>
+                            user(s)
+                        </h3>
                     </md-grid-tile-footer>
                 </md-grid-tile>
             </md-grid-list>
@@ -82,9 +84,23 @@
                     };
                 };
                 //
-                $scope.toggle_time = function(time_hour) {
-                    // mock
+                $scope.toggle_time = function(time_index) {
+                    if ($scope.ws_day) {
+                        var index = $scope.day[time_index].users.indexOf("{{ current_user }}");
+                        if (index != -1) {
+                            $scope.day[time_index].users.splice(index, 1);
+                        } else {
+                            $scope.day[time_index].users.push("{{ current_user }}");
+                        }
+                        $scope.ws_day.send(JSON.stringify($scope.day));
+                    };
                 };
+                var refresh_planning = function() {
+                    if ($scope.ws_day){
+                        $scope.ws_day.send("refresh");
+                    };
+                };
+                setTimeout(refresh_planning(), 60);
             });
         </script>
     </body>
