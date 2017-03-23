@@ -64,6 +64,7 @@
                 }, function errorCallback(response) {
                     console.log(response);
                 });
+
                 // connected object ws to receive its updates
                 var ws_object = new WebSocket("ws://" + location.host + "/objectsocket/objects-" + '{{ current_user }}');
                 ws_object.onopen = function() {
@@ -71,7 +72,11 @@
                 };
                 ws_object.onmessage = function(message) {
                     $scope.connected_object = JSON.parse(message.data);
+                    if ($scope.choosen_sport)
+                        $scope.choose_sport();
+                    $scope.$apply();  /* not a native angular function so we need to do an explicit refresh of the scope ... */
                 };
+
                 // sport choosen, open ws for the planning
                 $scope.choose_sport = function() {
                     // choosen sport ws to receive planning updates
@@ -81,8 +86,10 @@
                     };
                     $scope.ws_day.onmessage = function(message) {
                         $scope.day = JSON.parse(message.data);
+                        $scope.$apply();  /* not a native angular function so we need to do an explicit refresh of the scope ... */
                     };
                 };
+
                 //
                 $scope.toggle_time = function(time_index) {
                     if ($scope.ws_day) {
@@ -95,12 +102,14 @@
                         $scope.ws_day.send(JSON.stringify($scope.day));
                     };
                 };
+
+                //
                 var refresh_planning = function() {
                     if ($scope.ws_day){
                         $scope.ws_day.send("refresh");
                     };
                 };
-                setTimeout(refresh_planning(), 60);
+                setTimeout(refresh_planning(), 30);
             });
         </script>
     </body>

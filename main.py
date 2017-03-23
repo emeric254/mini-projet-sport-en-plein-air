@@ -8,10 +8,11 @@ import random
 import logging
 from tools import server
 from Handlers.BaseHandler import BaseHandler
-from Handlers.SportsHandler import SportsHandler
 from Handlers.LoginHandler import LoginHandler
-from Handlers.RegisterHandler import RegisterHandler
+from Handlers.SportsHandler import SportsHandler
 from Handlers.LogoutHandler import LogoutHandler
+from Handlers.UpdateHandler import UpdateHandler
+from Handlers.RegisterHandler import RegisterHandler
 from Handlers.ChatSocketHandler import ChatSocketHandler
 from Handlers.ObjectSocketHandler import ObjectSocketHandler
 from Handlers.PlanningSocketHandler import PlanningSocketHandler
@@ -35,6 +36,7 @@ class Application(web.Application):
             (r'/login', LoginHandler, dict(redis_client=redis_client)),
             (r'/register', RegisterHandler, dict(redis_client=redis_client)),
             (r'/logout', LogoutHandler),
+            (r'/update/(.*)$', UpdateHandler, dict(redis_client=redis_client)),
             (r'/objectsocket/(.*)$', ObjectSocketHandler, dict(redis_client=redis_client)),
             (r'/planningsocket/(.*)$', PlanningSocketHandler, dict(redis_client=redis_client)),
             (r'/chatsocket/(.*)$', ChatSocketHandler, dict(redis_client=redis_client)),

@@ -19,6 +19,7 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
         self.redis_client = redis_client
         self.subscrib = redis_client.pubsub()
         self.thread = None
+        self.channel = None
 
     def get_compression_options(self):
         """get_compression_options
@@ -50,6 +51,7 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
 
         :param message: object data received from a publication (redis)
         """
+        logger.info('send message for %s\'s object', self.current_user.decode())
         try:
             self.write_message(message['data'])  # redis has the true message object under the 'data' key
         except websocket.WebSocketClosedError:
@@ -62,4 +64,4 @@ class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
         """
         logger.info('got message "%r" from %s\'s object', message, self.current_user.decode())
         self.redis_client.publish(self.channel, message)  # publish it on the queue
-        self.redis_client.set('objects-' + self.get_current_user(), message)  # write it in the database
+        self.redis_client.set(self.channel, message)  # write it in the database

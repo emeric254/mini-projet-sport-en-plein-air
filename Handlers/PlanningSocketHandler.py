@@ -20,24 +20,15 @@ def verif_planning(planning):
             'users': []
         }]
     last_timestamp = planning[-1]['timestamp']
-    for time in planning:
-        if timestamp > time['timestamp'] + planning.index(time) * 3600:
-            planning.remove(time)
-            planning.append({
-                'hour': datetime.datetime.fromtimestamp(last_timestamp).hour + 1,
-                'timestamp': last_timestamp + 3600,
-                'users': [],
-            })
-        last_timestamp = planning[-1]['timestamp']
-    while len(planning) < 24:
+    while datetime.datetime.fromtimestamp(planning[0]['timestamp']).hour < hour:
+        planning.pop(0)
         planning.append({
             'hour': datetime.datetime.fromtimestamp(last_timestamp).hour + 1,
             'timestamp': last_timestamp + 3600,
             'users': [],
         })
         last_timestamp = planning[-1]['timestamp']
-    while datetime.datetime.fromtimestamp(planning[0]['timestamp']).hour < hour:
-        planning.pop(0)
+    while len(planning) < 24:
         planning.append({
             'hour': datetime.datetime.fromtimestamp(last_timestamp).hour + 1,
             'timestamp': last_timestamp + 3600,
@@ -58,6 +49,7 @@ class PlanningSocketHandler(websocket.WebSocketHandler, BaseHandler):
         self.redis_client = redis_client
         self.subscrib = redis_client.pubsub()
         self.thread = None
+        self.channel = None
 
     def get_compression_options(self):
         """get_compression_options
@@ -98,8 +90,9 @@ class PlanningSocketHandler(websocket.WebSocketHandler, BaseHandler):
     def send_updates(self, message):
         """send_updates
 
-        :param chat: object data received from a publication (redis)
+        :param message: object data received from a publication (redis)
         """
+        logger.info('sending message for planning ' + self.channel)
         try:
             self.write_message(message['data'])  # redis has the true message object under the 'data' key
         except websocket.WebSocketClosedError:
@@ -110,7 +103,7 @@ class PlanningSocketHandler(websocket.WebSocketHandler, BaseHandler):
 
         :param message: message received from the user object
         """
-        logger.info('got message "' + message + '" for planning ' + self.channel)
+        logger.info('got message for planning ' + self.channel)
         if message == 'refresh':
             message = verif_planning(self.redis_client.get(self.channel))
         else:

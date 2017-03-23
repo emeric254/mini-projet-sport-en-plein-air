@@ -1,4 +1,6 @@
 requests
 bs4
+lxml
 tornado
 redis
+websocket-client

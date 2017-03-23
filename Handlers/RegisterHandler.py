@@ -43,8 +43,8 @@ class RegisterHandler(BaseHandler):
                 self.redis_client.set('objects-' + getusername, json.dumps({'name': getobjectname,
                                                                             'position': 'Toulouse',
                                                                             'meteo': {}}))
-                with open('connected_object_simulator/' + getusername, mode='w') as file:
-                    file.write('\n')  # create a file to simulate a new connected object
+                with open('connected_object_simulator/' + getusername + '.object', mode='w') as file:
+                    file.write(getpassword + '\n')  # create a file to simulate a new connected object
                 self.set_secure_cookie('user', getusername, expires_days=1)
                 self.redirect('/')
         else:
