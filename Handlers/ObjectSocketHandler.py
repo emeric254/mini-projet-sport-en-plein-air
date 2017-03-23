@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import uuid
-import json
 import redis
 import logging
-from tornado import escape, web, websocket
+from tornado import web, websocket
 from Handlers.BaseHandler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
 
-class ChatSocketHandler(websocket.WebSocketHandler, BaseHandler):
-    """ChatSocketHandler
+class ObjectSocketHandler(websocket.WebSocketHandler, BaseHandler):
+    """ObjectSocketHandler
     """
     def initialize(self, redis_client: redis.Redis):
         """initialize
@@ -33,9 +31,13 @@ class ChatSocketHandler(websocket.WebSocketHandler, BaseHandler):
 
         :param path_request: uri requested for the websocket
         """
-        self.channel = 'messages' + path_request
+        logger.info('open ws for "' + path_request + '"')
+        self.channel = path_request
         self.subscrib.subscribe(**{self.channel: self.send_updates})
         self.thread = self.subscrib.run_in_thread(sleep_time=0.001)
+        object_data = self.redis_client.get(path_request)
+        if object_data:
+            self.write_message(object_data)  # send initial state
 
     def on_close(self):
         """on_close on websocket close
@@ -43,27 +45,21 @@ class ChatSocketHandler(websocket.WebSocketHandler, BaseHandler):
         self.subscrib.unsubscribe(self.channel)
         self.thread.stop()
 
-    def send_updates(self, chat):
+    def send_updates(self, message):
         """send_updates
 
-        :param chat: oblect recieved from a publication (redis)
+        :param message: object data received from a publication (redis)
         """
         try:
-            self.write_message(chat['data'])
+            self.write_message(message['data'])  # redis has the true message object under the 'data' key
         except websocket.WebSocketClosedError:
             logger.error("Error sending message", exc_info=True)
 
     def on_message(self, message):
         """on_message
 
-        :param message: message recieved from the user
+        :param message: message received from the user object
         """
-        logger.info('got message "%r" from %s', message, self.current_user.decode())
-        parsed = escape.json_decode(message)
-        chat = {
-            'id': str(uuid.uuid4()),
-            'author': self.current_user.decode(),
-            'body': parsed['body'],
-        }
-        chat['html'] = escape.to_basestring(self.render_string('message.html', message=chat))
-        self.redis_client.publish(self.channel, json.dumps(chat))
+        logger.info('got message "%r" from %s\'s object', message, self.current_user.decode())
+        self.redis_client.publish(self.channel, message)  # publish it on the queue
+        self.redis_client.set('objects-' + self.get_current_user(), message)  # write it in the database

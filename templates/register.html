@@ -9,7 +9,7 @@
     </head>
     <body ng-app="myApp" ng-cloak>
         <md-content layout="column" layout-align="center center" layout-padding>
-            <h2>Connexion</h2>
+            <h2>Registration</h2>
             <md-content layout-padding>
                 {% try %}
                     {% if error %}
@@ -19,7 +19,7 @@
                 {% except %}
                 {% end %}
             </md-content>
-            <form name="login" action="login" method="post" layout="column">
+            <form name="register" action="register" method="post" layout="column">
                 {% module xsrf_form_html() %}
                 <md-input-container class="md-block">
                     <label> Username </label>
@@ -31,13 +31,18 @@
                     <md-icon class="material-icons">vpn_key</md-icon>
                     <input required name="password" type="password" placeholder="Password">
                 </md-input-container>
+                <md-input-container class="md-block">
+                    <label> Your connected object name</label>
+                    <md-icon class="material-icons">cast_connected</md-icon>
+                    <input required name="object-name" type="text" placeholder="Object name">
+                </md-input-container>
                 <md-button type="submit" class="md-raised md-primary">
-                    <md-icon class="material-icons">lock_open</md-icon>
-                    Sign in
-                </md-button>
-                <md-button ng-href="/register" class="md-raised md-warn">
                     <md-icon class="material-icons">border_color</md-icon>
-                    Or register
+                    Sign up
+                </md-button>
+                <md-button ng-href="/login" class="md-raised md-warn">
+                    <md-icon class="material-icons">lock_open</md-icon>
+                    Or Login
                 </md-button>
             </form>
         </md-content>
