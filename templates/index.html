@@ -86,6 +86,11 @@
                     };
                     $scope.ws_day.onmessage = function(message) {
                         $scope.day = JSON.parse(message.data);
+                        var weather_list = $scope.connected_object.weather.list;
+                        console.log($scope.connected_object.weather);
+                        for (time in $scope.day) {
+                            $scope.day[time].weather = weather_list[Math.floor(time/3)].weather[0].main
+                        }
                         $scope.$apply();  /* not a native angular function so we need to do an explicit refresh of the scope ... */
                     };
                 };
