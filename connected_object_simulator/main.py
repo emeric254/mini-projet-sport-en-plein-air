@@ -80,10 +80,11 @@ def refresh_user_object(username, password):
 
 def refresh_data():
     weather.clear()  # reset temp weather data
-    files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.object')]
+    files = [f for f in os.listdir(dname) if os.path.isfile(os.path.join(dname,f)) and f.endswith('.object')]
+    print(files)
     for filename in files:
         username = filename[:-7]
-        with open(filename, mode='r') as object_file:
+        with open(os.path.join(dname, filename), mode='r') as object_file:
             password = object_file.read().strip()
         if username and password:
             refresh_user_object(username, password)
