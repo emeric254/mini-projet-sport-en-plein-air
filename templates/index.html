@@ -10,11 +10,21 @@
     </head>
     <body ng-app="myApp" ng-controller="mainControl" ng-cloak>
         <div layout-padding layout="column">
-            <h1>
-                Welcome {{ current_user }} !
-            </h1>
+            <md-toolbar class="md-hue-2">
+                <div class="md-toolbar-tools">
+                    <md-icon class="material-icons">perm_identity</md-icon>
+
+                    <h2 flex md-truncate>Welcome {{ current_user }} !</h2>
+
+                    <md-button class="md-raised md-warn" ng-href="/logout">
+                        <md-icon class="material-icons">all_out</md-icon>
+                        Logout
+                    </md-button>
+
+                </div>
+            </md-toolbar>
             <h2 ng-if="connected_object">
-                Your connected object (<span ng-bind="connected_object.name"></span>) is located in <span ng-bind="connected_object.position"></span>.
+                Your connected object is located in <span ng-bind="connected_object.position"></span>.
             </h2>
             <div layout="row" layout-align="space-between center">
                 <span>You want to : </span>
@@ -87,9 +97,8 @@
                     $scope.ws_day.onmessage = function(message) {
                         $scope.day = JSON.parse(message.data);
                         var weather_list = $scope.connected_object.weather.list;
-                        console.log($scope.connected_object.weather);
                         for (time in $scope.day) {
-                            $scope.day[time].weather = weather_list[Math.floor(time/3)].weather[0].main
+                            $scope.day[time].weather = weather_list[Math.floor(time/3)].weather[0].main;
                         }
                         $scope.$apply();  /* not a native angular function so we need to do an explicit refresh of the scope ... */
                     };

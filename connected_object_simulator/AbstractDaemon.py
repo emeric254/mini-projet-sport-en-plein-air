@@ -6,6 +6,7 @@ https://github.com/toast254/SimpleDaemon/tree/master/simpledaemon
 """
 
 import os
+import sys
 import time
 import atexit
 import signal
@@ -86,7 +87,7 @@ class Daemon:
         # Try killing the daemon process
         try:
             while 1:
-                os.kill(pid, signal.SIGTERM)
+                os.kill(self.check_pid(), signal.SIGTERM)
                 time.sleep(0.1)
         except OSError as err:
             e = str(err.args)
@@ -94,7 +95,7 @@ class Daemon:
                 if os.path.exists(self.pidfile):
                     os.remove(self.pidfile)
                 else:
-                    logger.warning('Can not find the pidfile : "' + pidfile + '" while a Daemon process runs')
+                    logger.warning('Can not find the pidfile : "' + self.pidfile + '" while a Daemon process runs')
             else:
                 logger.error(str(err.args))
                 sys.exit(1)

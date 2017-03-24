@@ -73,14 +73,14 @@ def refresh_user_object(session, username, password):
     session.post(target_url + '/update/' + objectname, data=data)
 
 
-def do_something():
+def refresh_data():
     meteo.clear()  # reset
     session = requests.Session()
     files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.object')]
     for filename in files:
         username = filename[:-7]
-        with open(filename, mode='r') as file:
-            password = file.read().strip()
+        with open(filename, mode='r') as object_file:
+            password = object_file.read().strip()
         if username and password:
             refresh_user_object(session, username, password)
         else:
@@ -92,7 +92,7 @@ class MyDaemon(Daemon):
 
     def run(self):
         while True:
-            do_something()
+            refresh_data()
             time.sleep(5 * 60)  # 5 minutes = 5 * 60 seconds
 
 
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         elif 'help' == sys.argv[1]:
             usage_help()
         elif 'run-once' == sys.argv[1]:
-            do_something()
+            refresh_data()
         else:
             print('Unknown argument')
             usage_help()

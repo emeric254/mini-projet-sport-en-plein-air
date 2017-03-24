@@ -2,7 +2,7 @@
 
 import redis
 import logging
-from tornado import web, escape
+from tornado import web
 from Handlers.BaseHandler import BaseHandler
 
 logger = logging.getLogger(__name__)

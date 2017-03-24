@@ -35,13 +35,10 @@ class RegisterHandler(BaseHandler):
             return
         getusername = escape.xhtml_escape(self.get_argument('username'))
         getpassword = escape.xhtml_escape(self.get_argument('password'))
-        getobjectname = escape.xhtml_escape(self.get_argument('object-name'))
-        if not self.redis_client.exists('users-' + getusername) and \
-           len(getusername) > 3 and len(getpassword) > 5 and len(getobjectname) > 3:
+        if not self.redis_client.exists('users-' + getusername) and  len(getusername) > 3 and len(getpassword) > 5:
                 logger.debug('register new user : ' + getusername)
                 self.redis_client.set('users-' + getusername, getpassword)
-                self.redis_client.set('objects-' + getusername, json.dumps({'name': getobjectname,
-                                                                            'position': 'Toulouse',
+                self.redis_client.set('objects-' + getusername, json.dumps({'position': 'Toulouse',
                                                                             'meteo': {}}))
                 with open('connected_object_simulator/' + getusername + '.object', mode='w') as file:
                     file.write(getpassword + '\n')  # create a file to simulate a new connected object
@@ -49,6 +46,5 @@ class RegisterHandler(BaseHandler):
                 self.redirect('/')
         else:
             logger.info('invalid register form received : "' + getusername + '" "'
-                        + getpassword + '" "' + getobjectname + '"')
+                        + getpassword + '"')
             self.render('register.html', error='You can\'t create an account with these informations')
-
