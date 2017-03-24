@@ -66,7 +66,7 @@ def main():
     """
     redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0)
     redis_client.ping()
-    redis_client.set('sports', '["bowling", "golf", "ski", "soccer", "football"]')
+    redis_client.set('sports', '["bowling", "golf", "football", "tennis", "rugby", "ping-pong", "basketball", "aviron"]')
     app = Application(redis_client=redis_client)
     server.start_http(app, 8888)
 
