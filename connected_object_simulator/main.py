@@ -22,8 +22,11 @@ target_url = 'http://127.0.0.1:8888'
 
 possible_positions = [
     'Toulouse',
-    'Blagnac',
-    'Ramonville'
+    'Paris',
+    'Bordeau',
+    'Lyon',
+    'Marseille',
+    'Lille'
 ]
 meteo = {}
 with open('openweathermap.token', mode='r') as file:
@@ -58,21 +61,20 @@ def refresh_user_object(session, username, password):
     position = random.choice(possible_positions)  # random city
     if position not in meteo:  # not already retrieve for this refresh run
         r = requests.get('http://api.openweathermap.org/data/2.5/forecast?q=' + position + ',fr&APPID=' + api_token)
-        r = json.loads(r.text)
-        meteo[position] = r
-    object_data = {
-        'name': objectname[8:],
-        'position': position,
-        'meteo': meteo[position]
-    }
+        meteo[position] = json.loads(r.text)
     data = {
         '_xsrf': token,
-        'data': json.dumps(object_data)
+        'data': json.dumps({
+            'name': objectname[8:],
+            'position': position,
+            'weather': meteo[position]
+        })
     }
     session.post(target_url + '/update/' + objectname, data=data)
 
 
 def do_something():
+    meteo.clear()  # reset
     session = requests.Session()
     files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.object')]
     for filename in files:
