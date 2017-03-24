@@ -25,7 +25,7 @@ target_url = 'http://127.0.0.1:8888'
 possible_positions = [
     'Toulouse',
     'Paris',
-    'Bordeau',
+    'Bordeaux',
     'Lyon',
     'Marseille',
     'Lille'
