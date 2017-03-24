@@ -14,7 +14,7 @@
                 <div class="md-toolbar-tools">
                     <md-icon class="material-icons">perm_identity</md-icon>
 
-                    <h2 flex md-truncate>Welcome {{ current_user }} !</h2>
+                    <h2 flex>Welcome {{ current_user }} !</h2>
 
                     <md-button class="md-raised md-warn" ng-href="/logout">
                         <md-icon class="material-icons">all_out</md-icon>
@@ -27,8 +27,8 @@
                 Your connected object is located in <span ng-bind="connected_object.position"></span>.
             </h2>
             <div layout="row" layout-align="space-between center">
-                <span>You want to : </span>
-                <md-input-container flex>
+                <p layout-margin>You want to : </p>
+                <md-input-container layout-margin flex>
                     <label>Select a sport</label>
                     <md-select ng-model="choosen_sport" ng-change="choose_sport()">
                         <md-option ng-repeat="sport in sports" ng-value="sport">
@@ -40,8 +40,8 @@
         </div>
         <md-progress-linear md-mode="indeterminate" ng-show="!day" ng-if="select_sport"></md-progress-linear>
         <div layout-padding ng-if="day">
-            <md-grid-list md-cols-xs="1" md-cols-sm="2" md-cols-md="4" md-cols-gt-md="6" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-                <md-grid-tile class="gray" md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1" ng-repeat="time in day track by $index" ng-style="{'background': (time.users.indexOf('{{ current_user }}') != -1)?'green':'gray'}" ng-click="toggle_time($index)">
+            <md-grid-list md-cols-xs="2" md-cols-sm="3" md-cols-md="5" md-cols-gt-md="8" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
+                <md-grid-tile class="gray" md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1" ng-repeat="time in day track by $index" ng-style="{'background': (time.users.indexOf('{{ current_user }}') != -1)?'green':((time.users.length - ((time.users.indexOf('{{ current_user }}')!=-1)?1:0))?'blue':'gray')}" ng-click="toggle_time($index)">
                     <span class="md-headline">
                         <span ng-bind="time.hour"></span>
                         h
@@ -96,9 +96,11 @@
                     };
                     $scope.ws_day.onmessage = function(message) {
                         $scope.day = JSON.parse(message.data);
-                        var weather_list = $scope.connected_object.weather.list;
-                        for (time in $scope.day) {
-                            $scope.day[time].weather = weather_list[Math.floor(time/3)].weather[0].main;
+                        if ($scope.connected_object.weather && 'list' in $scope.connected_object.weather) {
+                            var weather_list = $scope.connected_object.weather.list;
+                            for (time in $scope.day) {
+                                $scope.day[time].weather = weather_list[Math.floor(time/3)].weather[0].main;
+                            }
                         }
                         $scope.$apply();  /* not a native angular function so we need to do an explicit refresh of the scope ... */
                     };

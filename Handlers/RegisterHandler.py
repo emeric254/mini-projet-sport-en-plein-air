@@ -33,9 +33,9 @@ class RegisterHandler(BaseHandler):
         if self.current_user:
             self.redirect('/')
             return
-        getusername = escape.xhtml_escape(self.get_argument('username'))
-        getpassword = escape.xhtml_escape(self.get_argument('password'))
-        if not self.redis_client.exists('users-' + getusername) and  len(getusername) > 3 and len(getpassword) > 5:
+        getusername = str(escape.xhtml_escape(self.get_argument('username'))[:48])
+        getpassword = str(escape.xhtml_escape(self.get_argument('password'))[:64])
+        if not self.redis_client.exists('users-' + getusername) and len(getusername) > 3 and len(getpassword) > 5:
                 logger.debug('register new user : ' + getusername)
                 self.redis_client.set('users-' + getusername, getpassword)
                 self.redis_client.set('objects-' + getusername, json.dumps({'position': 'Toulouse',

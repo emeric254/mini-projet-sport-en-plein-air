@@ -93,7 +93,7 @@ class MyDaemon(Daemon):
     def run(self):
         while True:
             refresh_data()
-            time.sleep(5 * 60)  # 5 minutes = 5 * 60 seconds
+            time.sleep(1 * 60)  # 1 minutes = 1 * 60 seconds
 
 
 def usage_help():
