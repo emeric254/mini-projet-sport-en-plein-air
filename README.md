@@ -30,12 +30,16 @@ Open three command line interfaces.
 
 ## User story
 
+### A new User story
+
   1. User register on the '/register' webpage
   2. User is now log in into the application and have a connected object located by default in 'Toulouse'
   3. User choose a sport
   4. User choose time when he's available to make this sport (in his current location)
   5. User also view other availability for this sport (in his current location)
   6. User can logout when he's done
+
+### An actual user story
 
   1. User log in from the '/login' webpage
   2. User choose a sport
