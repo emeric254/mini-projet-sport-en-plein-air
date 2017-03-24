@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     </head>
-    <body ng-app="myApp" ng-controller="mainControl" ng-cloak>
+    <body ng-app="myApp" ng-controller="mainControl" ng-cloak style="background: linear-gradient(-90deg, #ddffdd, #ffddff);">
         <div layout-padding layout="column">
             <md-toolbar class="md-hue-2">
                 <div class="md-toolbar-tools">
@@ -41,7 +41,7 @@
         <md-progress-linear md-mode="indeterminate" ng-show="!day" ng-if="select_sport"></md-progress-linear>
         <div layout-padding ng-if="day">
             <md-grid-list md-cols-xs="2" md-cols-sm="3" md-cols-md="5" md-cols-gt-md="8" md-row-height-gt-md="1:1" md-row-height="2:2" md-gutter="12px" md-gutter-gt-sm="8px">
-                <md-grid-tile class="gray" md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1" ng-repeat="time in day track by $index" ng-style="{'background': (time.users.indexOf('{{ current_user }}') != -1)?((time.users.length - ((time.users.indexOf('{{ current_user }}')!=-1)?1:0))?'darkgreen':'darkturquoise'):((time.users.length - ((time.users.indexOf('{{ current_user }}')!=-1)?1:0))?'bisque':'azure')}" ng-click="toggle_time($index)">
+                <md-grid-tile class="gray" md-rowspan="1" md-colspan="1" md-colspan-sm="1" md-colspan-xs="1" ng-repeat="time in day track by $index" ng-style="{'background': give_color_plan(time.users)}" ng-click="toggle_time($index)">
                     <span class="md-headline">
                         <span ng-bind="time.hour"></span>
                         h
@@ -74,6 +74,20 @@
                 }, function errorCallback(response) {
                     console.log(response);
                 });
+
+                //
+                $scope.give_color_plan = function(users) {
+                    if (users.indexOf('{{ current_user }}') != -1) {
+                        if (users.length - 1) {
+                            return 'darkgreen';
+                        }
+                        return 'darkturquoise';
+                    }
+                    if (users.length) {
+                        return 'bisque';
+                    }
+                    return 'azure';
+                };
 
                 //
                 $scope.avert_good_plan = function(hour) {
