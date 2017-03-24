@@ -5,6 +5,7 @@
 Requirement : **python >= 3.3**
 
 To make an easy install of all dependencies, use **pip** :
+
 `pip install -r requirements.txt`
 
 
@@ -13,13 +14,17 @@ To make an easy install of all dependencies, use **pip** :
 Open three command line interfaces.
 
   1. Launch the redis server:
+
 `redis-server`
 
   2. Launch the main server :
+
 `python main.py`
 
   3. Then move to 'connected_object_simulator' and launch the connected object simulator:
+
 `python main.py run-once`
+
 (or use the 'start' argument if you want to run the simulator as a deamon)
 
 
