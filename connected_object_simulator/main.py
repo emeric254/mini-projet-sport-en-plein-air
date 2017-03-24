@@ -18,6 +18,8 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
+delay = 1 * 60  # 1 minute = 1 * 60 second
+
 target_url = 'http://127.0.0.1:8888'
 
 possible_positions = [
@@ -28,12 +30,15 @@ possible_positions = [
     'Marseille',
     'Lille'
 ]
-meteo = {}
+
+weather = {}
+
 with open('openweathermap.token', mode='r') as file:
     api_token = file.read().strip()
 
 
-def refresh_user_object(session, username, password):
+def refresh_user_object(username, password):
+    session = requests.Session()  # new session for a new user
     try:
         r = session.get(target_url + '/login')
     except requests.exceptions.RequestException:
@@ -59,30 +64,29 @@ def refresh_user_object(session, username, password):
         logger.error('Can not retrieve the token')
     objectname = 'objects-' + username
     position = random.choice(possible_positions)  # random city
-    if position not in meteo:  # not already retrieve for this refresh run
+    if position not in weather:  # not already retrieve for this refresh run
         r = requests.get('http://api.openweathermap.org/data/2.5/forecast?q=' + position + ',fr&APPID=' + api_token)
-        meteo[position] = json.loads(r.text)
+        weather[position] = json.loads(r.text)
     data = {
         '_xsrf': token,
         'data': json.dumps({
             'name': objectname[8:],
             'position': position,
-            'weather': meteo[position]
+            'weather': weather[position]
         })
     }
     session.post(target_url + '/update/' + objectname, data=data)
 
 
 def refresh_data():
-    meteo.clear()  # reset
-    session = requests.Session()
+    weather.clear()  # reset temp weather data
     files = [f for f in os.listdir('.') if os.path.isfile(f) and f.endswith('.object')]
     for filename in files:
         username = filename[:-7]
         with open(filename, mode='r') as object_file:
             password = object_file.read().strip()
         if username and password:
-            refresh_user_object(session, username, password)
+            refresh_user_object(username, password)
         else:
             logger.warning('Can not find right username and password in : ' + filename)
     logger.debug('It\'s a good time to be a simulator !')
@@ -93,7 +97,7 @@ class MyDaemon(Daemon):
     def run(self):
         while True:
             refresh_data()
-            time.sleep(1 * 60)  # 1 minutes = 1 * 60 seconds
+            time.sleep(delay)  # 1 minutes = 1 * 60 seconds
 
 
 def usage_help():
