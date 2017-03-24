@@ -2,7 +2,11 @@
 
 ## How to install dependencies
 
-Requirement : **python >= 3.3**
+Requirement :
+
+  - **python >= 3.3**
+  - **redis**
+
 
 To make an easy install of all dependencies, use **pip** :
 
