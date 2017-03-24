@@ -67,13 +67,22 @@
         <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
         <script type="text/javascript">
             app = angular.module('myApp', ['ngMaterial']);
-            app.controller('mainControl', function($scope, $window, $http) {
+            app.controller('mainControl', function($scope, $window, $http, $mdToast) {
                 // load sports list
                 $http.get('/sports').then(function successCallback(response) {
                     $scope.sports = response['data'];
                 }, function errorCallback(response) {
                     console.log(response);
                 });
+
+                //
+                $scope.avert_good_plan = function(hour) {
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent("You are not alone for your sport at " + hour + "h !")
+                            .hideDelay(1500)
+                    );
+                };
 
                 // connected object ws to receive its updates
                 var ws_object = new WebSocket("ws://" + location.host + "/objectsocket/objects-" + '{{ current_user }}');
@@ -100,6 +109,11 @@
                             var weather_list = $scope.connected_object.weather.list;
                             for (time in $scope.day) {
                                 $scope.day[time].weather = weather_list[Math.floor(time/3)].weather[0].main;
+                                /* // Disable for now, we need an history to know how to popup information
+                                if ($scope.day[time].users.indexOf("{{ current_user }}") != -1 && $scope.day[time].users.length > 1) {
+                                    $scope.avert_good_plan($scope.day[time].hour);
+                                }
+                                */
                             }
                         }
                         $scope.$apply();  /* not a native angular function so we need to do an explicit refresh of the scope ... */
