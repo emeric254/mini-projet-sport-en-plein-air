@@ -1,7 +1,32 @@
 # mini-projet-sport-en-plein-air
 
-## api openweathermap
-http://api.openweathermap.org/data/2.5/forecast?q=toulouse,fr&APPID={%TOKEN%}
-http://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139&APPID={%TOKEN%}
+## How to install dependencies
 
-##
+Requirement : **python >= 3.3**
+
+To make an easy install of all dependencies, use **pip** : `pip install -r requirements.txt`
+
+
+## How to use
+
+Open three command line interfaces.
+
+  1. Launch `redis-server`
+
+  2. Launch `python main.py`
+
+  3. Then move to 'connected_object_simulator' and launch `python main.py run-once` (or start if you want it to run as a deamon)
+
+
+## User story
+
+  1. User register on the '/register' webpage
+  2. User is now log in into the application and have a connected object located by default in 'Toulouse'
+  3. User choose a sport
+  4. User choose time when he's available to make this sport (in his current location)
+  5. User also view other availability for this sport (in his current location)
+  6. User can logout when he's done
+
+  1. User log in from the '/login' webpage
+  2. User choose a sport
+  3. ...etc...
