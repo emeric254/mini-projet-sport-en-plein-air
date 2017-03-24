@@ -11,6 +11,14 @@ To make an easy install of all dependencies, use **pip** :
 
 ## How to use
 
+### add your openWeatherMap api token
+
+  1. move to 'connected_object_simulator'
+  2. add a file **openweathermap.token** which contain your token
+
+
+### launch all servers
+
 Open three command line interfaces.
 
   1. Launch the redis server:
